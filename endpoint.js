@@ -187,6 +187,28 @@ router.get("/commandes/:id", (req, res) => {
 
 
 
+/*
+* Route : suppression d'un client
+* POST /api/clients/delete/:id
+* Exemple : POST /api/clients/delete/3
+* */
+router.put("/clients/delete/:id", (req, res) => {
+    const { id } = req.params; // pareil que const id = req.params.id
+
+        db.query("UPDATE client SET Nom_client = ?, Prenom_client = ?, Date_inscription_client = ?, Mail_client = ?, Telephone_client = ?, Adresse_client = ?, Mdp_client = ? WHERE Identifiant_client = ?",
+            ["", "", "2000-01-01", "", "", "", "", id],
+            (err, result) => {
+                if (err) {
+                    return res.status(500).json({message: "Erreur lors de la suppression"});
+                }
+
+                res.status(201).json({message: "Suppression réussie"});
+            },
+        );
+});
+
+
+
 
 
 
