@@ -194,9 +194,15 @@ router.get("/commandes/:id", (req, res) => {
 * */
 router.put("/clients/delete/:id", (req, res) => {
     const { id } = req.params; // pareil que const id = req.params.id
+    const date = new Date();
+    const date2 = date.toISOString();
+    const date3 = date2.split('T')[0];
+
+    //const today = date2.slice(0, 10);
+    //console.log(today);
 
         db.query("UPDATE client SET Nom_client = ?, Prenom_client = ?, Date_inscription_client = ?, Mail_client = ?, Telephone_client = ?, Adresse_client = ?, Mdp_client = ? WHERE Identifiant_client = ?",
-            ["", "", "2000-01-01", "", "", "", "", id],
+            ["", "", date3, "", "", "", "", id],
             (err, result) => {
                 if (err) {
                     return res.status(500).json({message: "Erreur lors de la suppression"});
