@@ -3,6 +3,7 @@ const db = require("./db");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const {hash} = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 
 /*
@@ -117,13 +118,9 @@ router.get("/clients/:id", (req, res) => {
 * PUT /api/clients/:id
 * Exemple : JSON
 * {
-* "Nom_client" : "Dupont",
-* "Prenom_client" : "Jean",
-* "Date_inscription_client": "2025-02-13",
 * "Mail_client" : "jean.dupont@email.com",
 * "Telephone_client": "0793625147",
 * "Adresse_client": "13 Rue Des Roses, Nice, 06004",
-* "Mdp_client" : "monMotDePasse"
 * }
 * */
 router.put("/clients/:id", (req, res) => {
@@ -198,23 +195,79 @@ router.put("/clients/delete/:id", (req, res) => {
     const date2 = date.toISOString();
     const date3 = date2.split('T')[0];
 
-    //const today = date2.slice(0, 10);
-    //console.log(today);
+    db.query("UPDATE client SET Nom_client = ?, Prenom_client = ?, Date_inscription_client = ?, Mail_client = ?, Telephone_client = ?, Adresse_client = ?, Mdp_client = ? WHERE Identifiant_client = ?",
+        ["DELETED", "DATE", date3, "", "", "", "", id],
+        (err, result) => {
+            if (err) {
+                return res.status(500).json({message: "Erreur lors de la suppression"});
+            }
 
-        db.query("UPDATE client SET Nom_client = ?, Prenom_client = ?, Date_inscription_client = ?, Mail_client = ?, Telephone_client = ?, Adresse_client = ?, Mdp_client = ? WHERE Identifiant_client = ?",
-            ["", "", date3, "", "", "", "", id],
-            (err, result) => {
-                if (err) {
-                    return res.status(500).json({message: "Erreur lors de la suppression"});
-                }
-
-                res.status(201).json({message: "Suppression réussie"});
-            },
-        );
+            res.status(201).json({message: "Suppression réussie"});
+        },
+    );
 });
 
 
 
+/*
+* Route : modification password
+* POST /api/login/:id
+* Exemple : JSON
+* {
+* "oldMdp" : "monMotDePasse",
+* "newMdp": "coucouLaTeam"
+* }
+* */
+router.post("/login/:id", (req, res) => {
+    const { id } = req.params;
+    const { oldMdp, newMdp} = req.body;
+
+    db.query("SELECT Mdp_client FROM client WHERE Identifiant_client = ?", [id], (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: "Erreur du serveur" });
+        }
+        // console.log(result[0].Mdp_client);
+        if (result.length === 0) {
+            return res.status(404).json({ message: "Password non trouvé" });
+        }
+        //console.log(oldMdp);
+        bcrypt.compare(oldMdp, result[0].Mdp_client, (pouet, isMatch) => {
+            //console.log(isMatch);
+            //console.log(result[0].Mdp_client);
+            //console.log(pouet);
+            if (pouet) {
+                //console.log(pouet);
+                return res.status(500).json({ message: "Problème dans la comparaison" });
+            }
+
+            if (isMatch) {
+                //console.log(isMatch);
+                //console.log(newMdp);
+
+                bcrypt.hash(newMdp, 10, (error, hash) => {
+                    if (error) {
+                        return res.status(500).json({message: "Erreur lors du hachage du mot de passe"});
+                    }
+
+                    // modification du nouveau mdp
+                    db.query("UPDATE client SET Mdp_client = ? WHERE Identifiant_client = ?", [hash, id], (erreur, result2) => {
+                        if (erreur) {
+                            return res.status(500).json({message: "Erreur lors de la suppression"});
+                        }
+                        //console.log(result2);
+                        res.status(201).json({message: "Modification de mot de passe réussie"});
+                    })
+                });
+
+
+            }
+
+            if (!isMatch) {
+                return res.status(500).json({ message: "Le mot de passe ne correspond pas" });
+            }
+        });
+    });
+});
 
 
 
