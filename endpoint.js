@@ -7,13 +7,15 @@ const {hash} = require("bcrypt");
 /* npm install jsonwebtoken */
 const jwt = require("jsonwebtoken");
 const {sign} = require("jsonwebtoken");
+/*on appelle la fonction verifyToken depuis middleware*/
+const {verifyToken} = require("./middleware.js");
 
 
 /*
 * Route lister les produits
 * GET /api/produits
 * */
-router.get("/produits", (req, res) => {
+router.get("/produits", verifyToken, (req, res) => {
     db.query("SELECT * FROM produit", (err, result) => {
         if (err) {
             return res.status(500).json({ message: "Erreur du serveur" });
