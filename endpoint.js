@@ -1,9 +1,12 @@
 const express = require("express");
 const db = require("./db");
 const router = express.Router();
+require("dotenv").config(); //Permet de charger les variables d'environnement
 const bcrypt = require("bcrypt");
 const {hash} = require("bcrypt");
+/* npm install jsonwebtoken */
 const jwt = require("jsonwebtoken");
+const {sign} = require("jsonwebtoken");
 
 
 /*
@@ -21,10 +24,10 @@ router.get("/produits", (req, res) => {
 
 /*
 * Route : récupérer un produit par son id
-* GET /api/produits/:id
-* Exemple : GET /api/produits/3
+* GET /api/produit/:id
+* Exemple : GET /api/produit/3
 * */
-router.get("/produits/:id", (req, res) => {
+router.get("/produit/:id", (req, res) => {
     const { id } = req.params; // pareil que const id = req.params.id
     db.query("SELECT * FROM produit WHERE Identifiant_produit = ?", [id], (err, result) => {
         if (err) {
@@ -36,6 +39,61 @@ router.get("/produits/:id", (req, res) => {
         }
 
         res.json(result[0]); // retournera uniquement le premier résultat
+    });
+});
+
+
+/*
+* Route : afficher tous les cafés
+* GET /api/produits/cafes
+* */
+router.get("/produits/cafes", (req, res) => {
+    db.query("SELECT * FROM produit WHERE Identifiant_categorie = ?", [1], (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: "Erreur du serveur" });
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: "Catégorie non trouvé" });
+        }
+
+        res.json(result);
+    });
+});
+
+/*
+* Route : afficher tous les thés
+* GET /api/produits/thes
+* */
+router.get("/produits/thes", (req, res) => {
+    db.query("SELECT * FROM produit WHERE Identifiant_categorie = ?", [2], (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: "Erreur du serveur" });
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: "Catégorie non trouvé" });
+        }
+
+        res.json(result);
+    });
+});
+
+/*
+* Route : afficher tous les accessoires
+* GET /api/accessoires
+* */
+router.get("/produits/accessoires", (req, res) => {
+    db.query("SELECT * FROM produit WHERE Identifiant_categorie = ?", [3], (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: "Erreur du serveur" });
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: "Catégorie non trouvé" });
+        }
+
+        res.json(result);
     });
 });
 
@@ -89,6 +147,55 @@ router.post("/clients/register", (req, res) => {
     });
 });
 
+
+/*
+* Route : Connexion d'un client (Génération de JWT)
+* POST /api/clients/login
+* Exemple : JSON
+* {
+* "Mail_client" : "jean.dupont@email.com",
+* "Mdp_client" : "monMotDePasse"
+* }
+* */
+router.post("/login", (req, res) => {
+    const {Mail_client, Mdp_client} = req.body;
+
+    db.query("SELECT * FROM client WHERE Mail_client = ?", [Mail_client], (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: "Erreur du serveur" });
+        }
+        if (result.length === 0) return res.status(401).json({message: "Identifiant incorrect"});
+
+        const client = result[0]; // on prend que la première ligne du tableau
+
+        /* Vérification du mot de passe */
+        bcrypt.compare(Mdp_client, client.Mdp_client, (err, isMatch) => {
+            if (err) {
+                return res.status(500).json({ message: "Erreur du serveur" });
+            }
+            if (!isMatch) return res.status(401).json({message: "Mot de passe incorrect"});
+
+            /* si on arrive là c'est que tout s'est bien passé alors on va générer le token JWT */
+            const token = sign(
+                {id: client.Identifiant_client, email: client.Mail_client},
+                process.env.JWT_SECRET,
+                {expiresIn: process.env.JWT_EXPIRES_IN}
+            );
+
+            res.json({
+                message : "Connexion réussie",
+                token,
+                client: {
+                    id: client.Identifiant_client,
+                    nom: client.Nom_client,
+                    prenom: client.Prenom_client,
+                    email: client.Mail_client
+                },
+            });
+
+        });
+    })
+})
 
 
 /*
