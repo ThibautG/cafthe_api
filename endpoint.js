@@ -246,8 +246,6 @@ router.put("/clients/:id", (req, res) => {
         res.status(201).json({message: "Modification réussie"});
         }
     );
-
-
 });
 
 
