@@ -102,7 +102,7 @@ router.get("/produits/accessoires", (req, res) => {
 
 /*
 * Route : inscription d'un client
-* POST /api/clients/register
+* POST /api/register
 * Exemple : JSON
 * {
 * "Nom_client" : "Dupont",
@@ -114,7 +114,7 @@ router.get("/produits/accessoires", (req, res) => {
 * "Mdp_client" : "monMotDePasse"
 * }
 * */
-router.post("/clients/register", (req, res) => {
+router.post("/register", (req, res) => {
     const {Nom_client, Prenom_client, Date_inscription_client, Mail_client, Telephone_client, Adresse_client, Mdp_client} = req.body;
 
     // contrôler si le mail est déjà présent dans la base de données
@@ -152,7 +152,7 @@ router.post("/clients/register", (req, res) => {
 
 /*
 * Route : Connexion d'un client (Génération de JWT)
-* POST /api/clients/login
+* POST /api/login
 * Exemple : JSON
 * {
 * "Mail_client" : "jean.dupont@email.com",
@@ -183,6 +183,7 @@ router.post("/login", (req, res) => {
                 process.env.JWT_SECRET,
                 {expiresIn: process.env.JWT_EXPIRES_IN}
             );
+            /*console.log(process.env.JWT_SECRET);*/
 
             res.json({
                 message : "Connexion réussie",
