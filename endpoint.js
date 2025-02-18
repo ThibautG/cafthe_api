@@ -235,11 +235,11 @@ router.get("/clients/:id", (req, res) => {
 * */
 router.put("/clients/:id", (req, res) => {
     const id = parseInt(req.params.id);
-    const { mail, tel, adresse } = req.body;
+    const { Mail_client, Telephone_client, Adresse_client } = req.body;
 
-    db.query("UPDATE client SET Mail_client = ?, Telephone_client = ?, Adresse_client = ? WHERE Identifiant_client = ?", [mail, tel, adresse, id], (err, result) => {
+    db.query("UPDATE client SET Mail_client = ?, Telephone_client = ?, Adresse_client = ? WHERE Identifiant_client = ?", [Mail_client, Telephone_client, Adresse_client, id], (err, result) => {
         if (err) {
-            // console.log(err);
+            console.log(err);
             return res.status(500).json({message: "Erreur lors de la modification"});
         }
 
