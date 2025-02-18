@@ -15,7 +15,7 @@ const {verifyToken} = require("./middleware.js");
 * Route lister les produits
 * GET /api/produits
 * */
-router.get("/produits", verifyToken, (req, res) => {
+router.get("/produits", (req, res) => {
     db.query("SELECT * FROM produit", (err, result) => {
         if (err) {
             return res.status(500).json({ message: "Erreur du serveur" });
@@ -256,7 +256,7 @@ router.put("/clients/:id", (req, res) => {
 * */
 router.get("/commandes/clients/:id", (req, res) => {
     const { id } = req.params; // pareil que const id = req.params.id
-    db.query("SELECT Identifiant_commande, Date_commande, Montant_ttc_commande FROM commande WHERE Identifiant_client = ?", [id], (err, result) => {
+    db.query("SELECT * FROM commande WHERE Identifiant_client = ?", [id], (err, result) => {
         if (err) {
             return res.status(500).json({ message: "Erreur du serveur" });
         }
@@ -277,8 +277,12 @@ router.get("/commandes/clients/:id", (req, res) => {
 * */
 router.get("/commandes/:id", (req, res) => {
     const { id } = req.params; // pareil que const id = req.params.id
-    db.query("SELECT * FROM commande WHERE Identifiant_commande = ?", [id], (err, result) => {
+    db.query("SELECT * FROM commande " +
+        "JOIN ligne_commande ON commande.Identifiant_commande = ligne_commande.Identifiant_commande " +
+        "JOIN produit ON ligne_commande.Identifiant_produit = produit.Identifiant_produit " +
+        "WHERE ligne_commande.Identifiant_commande = ?", [id], (err, result) => {
         if (err) {
+            console.log(err)
             return res.status(500).json({ message: "Erreur du serveur" });
         }
 
@@ -326,14 +330,15 @@ router.put("/clients/delete/:id", (req, res) => {
 * "newMdp": "coucouLaTeam"
 * }
 * */
-router.post("/login/:id", (req, res) => {
+router.put("/login/:id", (req, res) => {
     const { id } = req.params;
-    const { oldMdp, newMdp} = req.body;
+    const { oldMdp, newMdp } = req.body;
 
     db.query("SELECT Mdp_client FROM client WHERE Identifiant_client = ?", [id], (err, result) => {
         if (err) {
             return res.status(500).json({ message: "Erreur du serveur" });
         }
+
         // console.log(result[0].Mdp_client);
         if (result.length === 0) {
             return res.status(404).json({ message: "Password non trouvé" });
@@ -366,8 +371,6 @@ router.post("/login/:id", (req, res) => {
                         res.status(201).json({message: "Modification de mot de passe réussie"});
                     })
                 });
-
-
             }
 
             if (!isMatch) {
