@@ -271,7 +271,7 @@ router.get("/commandes/clients/:id", (req, res) => {
 
 
 /*
-* Route : liste d'une commande d'un client
+* Route : Détails d'une commande d'un client
 * GET /api/commandes/:id
 * Exemple : GET /api/commandes/3
 * */
@@ -280,7 +280,7 @@ router.get("/commandes/:id", (req, res) => {
     db.query("SELECT * FROM commande " +
         "JOIN ligne_commande ON commande.Identifiant_commande = ligne_commande.Identifiant_commande " +
         "JOIN produit ON ligne_commande.Identifiant_produit = produit.Identifiant_produit " +
-        "WHERE ligne_commande.Identifiant_commande = ?", [id], (err, result) => {
+        "WHERE commande.Identifiant_commande = ?", [id], (err, result) => {
         if (err) {
             console.log(err)
             return res.status(500).json({ message: "Erreur du serveur" });
@@ -289,7 +289,6 @@ router.get("/commandes/:id", (req, res) => {
         if (result.length === 0) {
             return res.status(404).json({ message: "Commande non trouvée" });
         }
-
         res.json(result);
     });
 });
