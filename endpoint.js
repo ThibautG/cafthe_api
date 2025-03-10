@@ -4,7 +4,10 @@ const router = express.Router();
 require("dotenv").config(); //Permet de charger les variables d'environnement
 const bcrypt = require("bcrypt");
 const {hash} = require("bcrypt");
-/* npm install jsonwebtoken */
+/* npm install jsonwebtoken
+* npm install --save-dev jest
+* npm install supertest
+*  */
 const jwt = require("jsonwebtoken");
 const {sign} = require("jsonwebtoken");
 /*on appelle la fonction verifyToken depuis middleware*/
