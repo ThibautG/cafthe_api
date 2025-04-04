@@ -59,7 +59,7 @@ router.get("/produits/cafes", (req, res) => {
         }
 
         if (result.length === 0) {
-            return res.status(404).json({ message: "Catégorie non trouvé" });
+            return res.status(404).json({ message: "Catégorie non trouvée" });
         }
 
         res.json(result);
@@ -77,7 +77,7 @@ router.get("/produits/thes", (req, res) => {
         }
 
         if (result.length === 0) {
-            return res.status(404).json({ message: "Catégorie non trouvé" });
+            return res.status(404).json({ message: "Catégorie non trouvée" });
         }
 
         res.json(result);
@@ -86,7 +86,7 @@ router.get("/produits/thes", (req, res) => {
 
 /*
 * Route : afficher tous les accessoires
-* GET /api/accessoires
+* GET /api/produits/accessoires
 * */
 router.get("/produits/accessoires", (req, res) => {
     db.query("SELECT * FROM produit WHERE Identifiant_categorie = ?", [3], (err, result) => {
@@ -95,7 +95,25 @@ router.get("/produits/accessoires", (req, res) => {
         }
 
         if (result.length === 0) {
-            return res.status(404).json({ message: "Catégorie non trouvé" });
+            return res.status(404).json({ message: "Catégorie non trouvée" });
+        }
+
+        res.json(result);
+    });
+});
+
+/*
+* Route : afficher les produits en avant
+* GET /api/produits/highlighted
+* */
+router.get("/produits/highlighted", (req, res) => {
+    db.query("SELECT * FROM produit WHERE isHighlighted = ?", [1], (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: "Erreur du serveur" });
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: "Catégorie non trouvée" });
         }
 
         res.json(result);
