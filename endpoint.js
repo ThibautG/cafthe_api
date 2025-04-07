@@ -106,7 +106,7 @@ router.get("/produits/accessoires", (req, res) => {
 * Route : afficher les produits en avant
 * GET /api/produits/highlighted
 * */
-router.get("/produits/highlighted", (req, res) => {
+router.get("/produits/highlighted", (re, res) => {
     db.query("SELECT * FROM produit WHERE isHighlighted = ?", [1], (err, result) => {
         if (err) {
             return res.status(500).json({ message: "Erreur du serveur" });
@@ -213,7 +213,9 @@ router.post("/login", (req, res) => {
                     id: client.Identifiant_client,
                     nom: client.Nom_client,
                     prenom: client.Prenom_client,
-                    email: client.Mail_client
+                    email: client.Mail_client,
+                    adresse: client.Adresse_client,
+                    tel: client.Telephone_client
                 },
             });
 
