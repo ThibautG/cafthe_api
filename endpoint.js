@@ -229,7 +229,7 @@ router.post("/login", (req, res) => {
 * GET /api/clients/:id
 * Exemple : GET /api/clients/3
 * */
-router.get("/clients/:id", (req, res) => {
+router.get("/clients/:id", verifyToken, (req, res) => {
     const { id } = req.params; // pareil que const id = req.params.id
     db.query("SELECT * FROM client WHERE Identifiant_client = ?", [id], (err, result) => {
         if (err) {
@@ -253,10 +253,10 @@ router.get("/clients/:id", (req, res) => {
 * {
 * "Mail_client" : "jean.dupont@email.com",
 * "Telephone_client": "0793625147",
-* "Adresse_client": "13 Rue Des Roses, Nice, 06004",
+* "Adresse_client": "13 Rue Des Roses, Nice, 06004"
 * }
 * */
-router.put("/clients/:id", (req, res) => {
+router.put("/clients/:id", verifyToken, (req, res) => {
     const id = parseInt(req.params.id);
     const { Mail_client, Telephone_client, Adresse_client } = req.body;
 
@@ -277,7 +277,7 @@ router.put("/clients/:id", (req, res) => {
 * GET /api/commandes/clients/:id
 * Exemple : GET /api/commandes/clients/3
 * */
-router.get("/commandes/clients/:id", (req, res) => {
+router.get("/commandes/clients/:id", verifyToken, (req, res) => {
     const { id } = req.params; // pareil que const id = req.params.id
     db.query("SELECT * FROM commande WHERE Identifiant_client = ?", [id], (err, result) => {
         if (err) {
@@ -298,7 +298,7 @@ router.get("/commandes/clients/:id", (req, res) => {
 * GET /api/commandes/:id
 * Exemple : GET /api/commandes/3
 * */
-router.get("/commandes/:id", (req, res) => {
+router.get("/commandes/:id", verifyToken, (req, res) => {
     const { id } = req.params; // pareil que const id = req.params.id
     db.query("SELECT * FROM commande " +
         "JOIN ligne_commande ON commande.Identifiant_commande = ligne_commande.Identifiant_commande " +
@@ -323,7 +323,7 @@ router.get("/commandes/:id", (req, res) => {
 * POST /api/clients/delete/:id
 * Exemple : POST /api/clients/delete/3
 * */
-router.put("/clients/delete/:id", (req, res) => {
+router.put("/clients/delete/:id", verifyToken, (req, res) => {
     const { id } = req.params; // pareil que const id = req.params.id
     const date = new Date();
     const date2 = date.toISOString();
@@ -345,14 +345,14 @@ router.put("/clients/delete/:id", (req, res) => {
 
 /*
 * Route : modification password
-* POST /api/login/:id
+* PUT /api/login/:id
 * Exemple : JSON
 * {
 * "oldMdp" : "monMotDePasse",
 * "newMdp": "coucouLaTeam"
 * }
 * */
-router.put("/login/:id", (req, res) => {
+router.put("/login/:id", verifyToken, (req, res) => {
     const { id } = req.params;
     const { oldMdp, newMdp } = req.body;
 
